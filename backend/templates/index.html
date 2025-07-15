@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>FastAPI 백엔드 1주차 과제</title>
+    <style>
+        body { font-family: 'Segoe UI', 'Malgun Gothic', Arial, sans-serif; background: #f7f8fa; margin: 0; padding: 0; }
+        .layout { display: flex; min-height: 100vh; }
+        .sidebar { width: 260px; background: #2d5be3; color: #fff; padding: 36px 0 0 0; box-shadow: 2px 0 12px #0001; }
+        .sidebar h2 { color: #fff; font-size: 1.3em; text-align: center; margin-bottom: 24px; }
+        .toc { list-style: none; padding: 0 0 0 0; margin: 0; }
+        .toc li { margin: 0; }
+        .toc a { display: block; color: #fff; text-decoration: none; padding: 14px 32px; font-size: 1.08em; border-left: 4px solid transparent; transition: background 0.2s, border 0.2s; }
+        .toc a:hover, .toc a.active { background: #1b3e8a; border-left: 4px solid #fff; }
+        .container { flex: 1; max-width: 900px; margin: 40px auto; background: #fff; border-radius: 12px; box-shadow: 0 2px 12px #0001; padding: 32px 40px; }
+        h1 { color: #2d5be3; text-align: left; margin-top: 0; }
+        .step-detail { display: none; }
+        .step-detail.active { display: block; }
+        .api-table { border-collapse: collapse; width: 100%; margin-top: 10px; margin-bottom: 5px; }
+        .api-table th, .api-table td { border: 1px solid #dbe2ea; padding: 6px 10px; text-align: left; }
+        .api-table th { background: #f0f4fa; }
+        .desc { color: #555; font-size: 0.98em; margin-bottom: 18px; }
+        .page-links { margin: 8px 0 0 0; padding: 0; list-style: none; }
+        .page-links li { margin-bottom: 4px; }
+        .page-links a { color: #2d5be3; text-decoration: underline; }
+        .example { background: #f7fafd; border: 1px solid #e0e4ea; border-radius: 6px; padding: 10px 16px; margin: 10px 0; font-size: 0.98em; }
+    </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var links = document.querySelectorAll('.toc a');
+            var details = document.querySelectorAll('.step-detail');
+            links.forEach(function(link, idx) {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    links.forEach(l => l.classList.remove('active'));
+                    link.classList.add('active');
+                    details.forEach(d => d.classList.remove('active'));
+                    details[idx].classList.add('active');
+                });
+            });
+            // 첫 번째 단계 자동 활성화
+            if (links.length > 0) {
+                links[0].classList.add('active');
+                details[0].classList.add('active');
+            }
+        });
+    </script>
+</head>
+<body>
+    <div class="layout">
+        <nav class="sidebar">
+            <h2>과제 목차</h2>
+            <ul class="toc">
+                <li><a href="#step1">1단계: 페이지 보여주기</a></li>
+                <li><a href="#step2">2단계: 데이터 보내기</a></li>
+                <li><a href="#step3">3단계: 복합적인 데이터 보내기</a></li>
+                <li><a href="#step4">4단계: 데이터 CREATE하기</a></li>
+                <li><a href="#step5">5단계: 데이터 수정 및 삭제하기</a></li>
+                <li><a href="#step6">6단계: 로그인 기능 만들기</a></li>
+            </ul>
+        </nav>
+        <div class="container">
+            <h1>FastAPI 백엔드 1주차 과제</h1>
+            <div class="desc">FastAPI를 처음 접하는 분들을 위한 단계별 실습 과제입니다.<br>왼쪽 목차에서 단계를 선택하면 상세 내용을 볼 수 있습니다.</div>
+
+            <div class="step-detail" id="step1">
+                <h2>1단계: 페이지 보여주기</h2>
+                <b>목표:</b> FastAPI에서 HTML 페이지를 반환하는 방법을 익힙니다.<br>
+                <ul>
+                    <li><code>/</code>에서 <code>index.html</code> 반환</li>
+                    <li><code>/hello/자신의이름</code>에서 <code>hello.html</code> 반환 (이름은 반드시 자신의 이름으로!)</li>
+                </ul>
+                <b>필수 구현 API 및 사양서</b>
+                <table class="api-table">
+                    <tr><th>Method</th><th>URL</th><th>리턴(페이지)</th><th>설명</th><th>템플릿에서 받는 데이터</th></tr>
+                    <tr><td>GET</td><td>/</td><td>index.html</td><td>메인 랜딩 페이지(HTML) 반환</td><td>없음</td></tr>
+                    <tr><td>GET</td><td>/hello/자신의이름</td><td>hello.html</td><td>이름을 받아 인사 페이지 반환<br>템플릿에서 <code>{{ name }}</code>으로 사용</td><td>{ name: str }<br>예: { name: "홍길동" }</td></tr>
+                </table>
+                <ul>
+                    <li><b>hello.html</b>에서는 <code>{{ name }}</code> 변수로 이름을 받아 화면에 출력합니다.</li>
+                </ul>
+                <b>Jinja2Templates란?</b>
+                <div class="example">
+                    <b>Jinja2Templates는 FastAPI에서 HTML 템플릿에 데이터를 넣어주는 도구입니다.</b><br>
+                    <ul>
+                        <li>템플릿 파일(예: <code>hello.html</code>)에 <code>{{ name }}</code>처럼 변수를 쓸 수 있습니다.</li>
+                        <li>FastAPI에서 <code>templates.TemplateResponse("hello.html", {"request": request, "name": "홍길동"})</code>처럼 데이터를 넘기면, <code>{{ name }}</code> 자리에 "홍길동"이 들어갑니다.</li>
+                        <li>템플릿 파일은 <code>templates/</code> 폴더에 저장합니다.</li>
+                    </ul>
+                </div>
+                <b>Jinja2Templates 기본 예제</b>
+                <div class="example">
+<pre style="margin:0;">
+from fastapi.templating import Jinja2Templates
+from fastapi import Request
+from fastapi.responses import HTMLResponse
+
+app = FastAPI()
+templates = Jinja2Templates(directory="templates")
+
+# 특정 페이지를 렌더링하는 예제
+# 다음과 같이, 주소에서 {}를 통해 변수를 받아서 사용할 수 있습니다.
+# 사용할 변수는 하단의 함수에서 추가로 정의해줘야합니다.
+@app.get("/page/{name}", response_class=HTMLResponse)
+def get_page(request: Request, name: str):
+    return templates.TemplateResponse("page.html", {"request": request, "page": name})
+</pre>
+                  </div>
+                <b>구현해야 하는 페이지</b>
+                <ul class="page-links">
+                    <li><a href="/">index.html (메인)</a></li>
+                    <li><a href="/hello/홍길동">hello.html (인사)</a></li>
+                </ul>
+            </div>
+
+            <div class="step-detail" id="step2">
+                <h2>2단계: 데이터 보내기</h2>
+                <b>목표:</b> FastAPI에서 JSON 데이터를 반환하는 방법을 익힙니다.<br>
+                <ul>
+                    <li>사용자 목록, 상품 목록 등 JSON 데이터 반환</li>
+                    <li>목업 데이터 파일(data/users.json, data/products.json) 활용</li>
+                </ul>
+                <b>필수 구현 API 및 사양서</b>
+                <table class="api-table">
+                    <tr><th>Method</th><th>URL</th><th>리턴(페이지)</th><th>설명</th><th>템플릿에서 받는 데이터</th></tr>
+                    <tr><td>GET</td><td>/users</td><td>users.html<br>+ users.json (API)</td><td>사용자 목록(JSON) 반환<br>템플릿에서는 표로 출력</td><td>{ users: List[User] }<br>예: [{"id":1,"name":"홍길동","email":"hong@example.com"}, ...]</td></tr>
+                    <tr><td>GET</td><td>/products</td><td>products.html<br>+ products.json (API)</td><td>상품 목록(JSON) 반환<br>템플릿에서는 표로 출력</td><td>{ products: List[Product] }<br>예: [{"id":101,"name":"키보드","price":30000}, ...]</td></tr>
+                </table>
+                <ul>
+                    <li>각각 <b>users.html</b>, <b>products.html</b>에서 리스트를 표로 출력합니다.<br>
+                        템플릿에서는 <code>{% raw %}{% for user in users %}{% endraw %} ... {% raw %}{% endfor %}{% endraw %}</code> 등 반복문 사용</li>
+                </ul>
+                <b>필수 지식/예제</b>
+                <div class="example">
+                    <b>FastAPI JSON 반환 예제:</b><br>
+                    <code>@app.get("/users", response_class=JSONResponse)</code><br>
+                    <code>return users</code>
+                </div>
+                <b>구현해야 하는 페이지</b>
+                <ul class="page-links">
+                    <li><a href="/users">users.html (사용자 목록)</a></li>
+                    <li><a href="/products">products.html (상품 목록)</a></li>
+                </ul>
+            </div>
+
+            <div class="step-detail" id="step3">
+                <h2>3단계: 복합적인 데이터(구매정보) 보내기</h2>
+                <b>목표:</b> 구매정보 목업 데이터(purchases.json)를 활용해, 구매자 이름, 상품명, 가격, 구매일시 등으로 조합된 정보를 반환하는 방법을 익힙니다.<br>
+                <ul>
+                    <li>구매정보(purchases.json)에는 user_id, product_id, date만 있음</li>
+                    <li>users.json, products.json과 조합하여 구매자 이름, 상품명, 가격, 구매일시 등으로 변환</li>
+                </ul>
+                <b>필수 구현 API 및 사양서</b>
+                <table class="api-table">
+                    <tr><th>Method</th><th>URL</th><th>리턴(페이지)</th><th>설명</th><th>템플릿에서 받는 데이터</th></tr>
+                    <tr><td>GET</td><td>/summary</td><td>summary.html<br>+ 구매정보 JSON</td><td>구매정보를 조합해 구매자, 상품명, 가격, 구매일시 등으로 반환<br>템플릿에서는 표로 출력</td><td>{ purchases: List[PurchaseSummary] }<br>예: {"purchases": [{"user_name": "홍길동", "product_name": "키보드", "product_price": 30000, "date": "2025-07-01T10:00:00"}, ...]}</td></tr>
+                </table>
+                <ul>
+                    <li><b>summary.html</b>에서 구매정보를 한 화면에 표로 출력</li>
+                </ul>
+                <b>필수 지식/예제</b>
+                <div class="example">
+                    <b>구매정보 조합 예제:</b><br>
+                    <code>return {"purchases": purchases_summary}</code>
+                </div>
+                <b>구현해야 하는 페이지</b>
+                <ul class="page-links">
+                    <li><a href="/summary">summary.html (구매 요약)</a></li>
+                </ul>
+            </div>
+
+            <div class="step-detail" id="step4">
+                <h2>4단계: 데이터 CREATE하기</h2>
+                <b>목표:</b> POST 요청을 받아 새로운 데이터를 생성하는 방법을 익힙니다.<br>
+                <ul>
+                    <li>사용자/상품/구매정보 추가 폼 구현 (HTML)</li>
+                    <li>POST API로 데이터 추가</li>
+                </ul>
+                <b>필수 구현 API 및 사양서</b>
+                <table class="api-table">
+                    <tr><th>Method</th><th>URL</th><th>리턴(페이지)</th><th>설명</th><th>폼에서 전송/템플릿에서 받는 데이터</th></tr>
+                    <tr><td>GET</td><td>/user_create</td><td>user_create.html</td><td>사용자 추가 폼 페이지</td><td>없음 (폼에서 name, email 입력)</td></tr>
+                    <tr><td>POST</td><td>/users</td><td>JSON/리다이렉트</td><td>폼에서 <code>name</code>, <code>email</code>을 받아 사용자 추가</td><td>{ name: str, email: str }<br>폼에서 전송</td></tr>
+                    <tr><td>GET</td><td>/product_create</td><td>product_create.html</td><td>상품 추가 폼 페이지</td><td>없음 (폼에서 name, price 입력)</td></tr>
+                    <tr><td>POST</td><td>/products</td><td>JSON/리다이렉트</td><td>폼에서 <code>name</code>, <code>price</code>를 받아 상품 추가</td><td>{ name: str, price: int }<br>폼에서 전송</td></tr>
+                    <tr><td>GET</td><td>/purchase_create</td><td>purchase_create.html</td><td>구매정보 추가 폼 페이지</td><td>없음 (폼에서 user_id, product_id, date 입력)</td></tr>
+                    <tr><td>POST</td><td>/purchases</td><td>JSON/리다이렉트</td><td>폼에서 <code>user_id</code>, <code>product_id</code>, <code>date</code>를 받아 구매정보 추가</td><td>{ user_id: int, product_id: int, date: str }<br>폼에서 전송</td></tr>
+                </table>
+                <ul>
+                    <li>폼에서 입력한 데이터는 POST로 전송됨<br>예: <code>{"user_id": 1, "product_id": 101, "date": "2025-07-01T10:00:00"}</code></li>
+                </ul>
+                <b>필수 지식/예제</b>
+                <div class="example">
+                    <b>POST 데이터 받기 예제:</b><br>
+                    <code>@app.post("/purchases")</code><br>
+                    <code>def create_purchase(purchase: Purchase): ...</code>
+                </div>
+                <b>구현해야 하는 페이지</b>
+                <ul class="page-links">
+                    <li><a href="/user_create">user_create.html (사용자 추가)</a></li>
+                    <li><a href="/product_create">product_create.html (상품 추가)</a></li>
+                    <li><a href="/purchase_create">purchase_create.html (구매정보 추가)</a></li>
+                </ul>
+            </div>
+
+            <div class="step-detail" id="step5">
+                <h2>5단계: 데이터 수정 및 삭제하기</h2>
+                <b>목표:</b> PUT, DELETE 요청을 통해 데이터를 수정/삭제하는 방법을 익힙니다.<br>
+                <ul>
+                    <li>수정/삭제 폼 구현 (HTML)</li>
+                    <li>PUT, DELETE API 구현</li>
+                </ul>
+                <b>필수 구현 API 및 사양서</b>
+                <table class="api-table">
+                    <tr><th>Method</th><th>URL</th><th>리턴(페이지)</th><th>설명</th><th>폼에서 전송/템플릿에서 받는 데이터</th></tr>
+                    <tr><td>GET</td><td>/user_edit/{id}</td><td>user_edit.html</td><td>사용자 수정/삭제 폼 페이지<br>폼에서 <code>name</code>, <code>email</code>을 수정</td><td>{ user: { id, name, email } }<br>폼에서 name, email 입력</td></tr>
+                    <tr><td>POST</td><td>/users/{id}?_method=put</td><td>JSON/리다이렉트</td><td>사용자 정보 수정</td><td>{ name: str, email: str }<br>폼에서 전송</td></tr>
+                    <tr><td>POST</td><td>/users/{id}?_method=delete</td><td>JSON/리다이렉트</td><td>사용자 삭제</td><td>id만 필요</td></tr>
+                    <tr><td>GET</td><td>/product_edit/{id}</td><td>product_edit.html</td><td>상품 수정/삭제 폼 페이지<br>폼에서 <code>name</code>, <code>price</code>를 수정</td><td>{ product: { id, name, price } }<br>폼에서 name, price 입력</td></tr>
+                    <tr><td>POST</td><td>/products/{id}?_method=put</td><td>JSON/리다이렉트</td><td>상품 정보 수정</td><td>{ name: str, price: int }<br>폼에서 전송</td></tr>
+                    <tr><td>POST</td><td>/products/{id}?_method=delete</td><td>JSON/리다이렉트</td><td>상품 삭제</td><td>id만 필요</td></tr>
+                    <tr><td>GET</td><td>/purchase_edit/{id}</td><td>purchase_edit.html</td><td>구매정보 수정/삭제 폼 페이지<br>폼에서 <code>user_id</code>, <code>product_id</code>, <code>date</code>를 수정</td><td>{ purchase: { id, user_id, product_id, date } }<br>폼에서 user_id, product_id, date 입력</td></tr>
+                    <tr><td>POST</td><td>/purchases/{id}?_method=put</td><td>JSON/리다이렉트</td><td>구매정보 수정</td><td>{ user_id: int, product_id: int, date: str }<br>폼에서 전송</td></tr>
+                    <tr><td>POST</td><td>/purchases/{id}?_method=delete</td><td>JSON/리다이렉트</td><td>구매정보 삭제</td><td>id만 필요</td></tr>
+                </table>
+                <ul>
+                    <li>폼에서 입력한 데이터는 POST로 전송됨<br>예: <code>{"user_id": 1, "product_id": 101, "date": "2025-07-01T10:00:00"}</code></li>
+                </ul>
+                <b>필수 지식/예제</b>
+                <div class="example">
+                    <b>PUT/DELETE 예제:</b><br>
+                    <code>@app.put("/purchases/{id}")</code><br>
+                    <code>@app.delete("/purchases/{id}")</code>
+                </div>
+                <b>구현해야 하는 페이지</b>
+                <ul class="page-links">
+                    <li><a href="/user_edit/1">user_edit.html (사용자 수정/삭제)</a></li>
+                    <li><a href="/product_edit/101">product_edit.html (상품 수정/삭제)</a></li>
+                    <li><a href="/purchase_edit/1">purchase_edit.html (구매정보 수정/삭제)</a></li>
+                </ul>
+            </div>
+
+            <div class="step-detail" id="step6">
+                <h2>6단계: 로그인 기능 만들기</h2>
+                <b>목표:</b> 세션/쿠키를 활용한 간단한 로그인 기능을 구현합니다.<br>
+                <ul>
+                    <li>로그인 폼 구현 (HTML)</li>
+                    <li>로그인/로그아웃 API 구현</li>
+                    <li>로그인 상태에 따라 페이지 표시 다르게</li>
+                </ul>
+                <b>필수 구현 API 및 사양서</b>
+                <table class="api-table">
+                    <tr><th>Method</th><th>URL</th><th>리턴(페이지)</th><th>설명</th><th>폼에서 전송/템플릿에서 받는 데이터</th></tr>
+                    <tr><td>GET</td><td>/login</td><td>login.html</td><td>로그인 폼 페이지</td><td>없음 (폼에서 username, password 입력)</td></tr>
+                    <tr><td>POST</td><td>/login</td><td>JSON/리다이렉트</td><td>폼에서 <code>username</code>, <code>password</code>를 받아 로그인 처리</td><td>{ username: str, password: str }<br>폼에서 전송</td></tr>
+                    <tr><td>GET</td><td>/logout</td><td>리다이렉트</td><td>로그아웃 처리</td><td>없음</td></tr>
+                </table>
+                <ul>
+                    <li>로그인 폼에서 입력한 데이터는 POST로 전송됨<br>예: <code>{"username": "id", "password": "pw"}</code></li>
+                </ul>
+                <b>필수 지식/예제</b>
+                <div class="example">
+                    <b>로그인 예제:</b><br>
+                    <code>@app.post("/login")</code><br>
+                    <code>def login(...): ...</code>
+                </div>
+                <b>구현해야 하는 페이지</b>
+                <ul class="page-links">
+                    <li><a href="/login">login.html (로그인)</a></li>
+                </ul>
+            </div>
+
+        </div>
+    </div>
+</body>
+</html>

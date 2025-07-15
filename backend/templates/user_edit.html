@@ -1,0 +1,22 @@
+<!--
+5단계: 사용자 정보 수정 폼 예시 페이지입니다.
+-->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>사용자 수정</title>
+</head>
+<body>
+    <h1>사용자 수정</h1>
+    <form method="post" action="/users/{{ user.id }}?_method=put">
+        <input type="text" name="name" value="{{ user.name }}" required>
+        <input type="email" name="email" value="{{ user.email }}" required>
+        <button type="submit">수정</button>
+    </form>
+    <form method="post" action="/users/{{ user.id }}?_method=delete" style="margin-top:10px;">
+        <button type="submit" style="color:red;">삭제</button>
+    </form>
+    <a href="/">메인으로</a>
+</body>
+</html>

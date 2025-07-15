@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>구매정보 수정/삭제</title>
+</head>
+<body>
+    <h1>구매정보 수정/삭제</h1>
+    <form method="post" action="/purchases/{{ purchase.id }}?_method=put">
+        <label>구매자 ID: <input type="number" name="user_id" value="{{ purchase.user_id }}" required></label><br>
+        <label>상품 ID: <input type="number" name="product_id" value="{{ purchase.product_id }}" required></label><br>
+        <label>구매일시: <input type="datetime-local" name="date" value="{{ purchase.date }}" required></label><br>
+        <button type="submit">수정</button>
+    </form>
+    <form method="post" action="/purchases/{{ purchase.id }}?_method=delete" style="margin-top:16px;">
+        <button type="submit" style="color:red;">삭제</button>
+    </form>
+</body>
+</html>

@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>구매정보 추가</title>
+</head>
+<body>
+    <h1>구매정보 추가</h1>
+    <form method="post" action="/purchases">
+        <label>구매자 ID: <input type="number" name="user_id" required></label><br>
+        <label>상품 ID: <input type="number" name="product_id" required></label><br>
+        <label>구매일시: <input type="datetime-local" name="date" required></label><br>
+        <button type="submit">추가</button>
+    </form>
+</body>
+</html>
