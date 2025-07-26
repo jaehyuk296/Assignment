@@ -5,5 +5,6 @@ description = "FastAPI 예제 프로젝트 (uv 패키지 매니저 사용)"
 requires-python = ">=3.7"
 dependencies = [
     "fastapi",
-    "uvicorn"
+    "jinja2>=3.1.6",
+    "uvicorn",
 ]
