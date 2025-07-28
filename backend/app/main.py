@@ -92,3 +92,15 @@ def get_users():
 def get_products():
     products = load_mock_data("products.json")
     return {"products": products}
+
+#3단계
+@app.get("/summary", response_class=JSONResponse)
+def get_purchases():
+    users = load_mock_data("users.json")
+    products = load_mock_data("products.json")
+    purchases_summary={
+        "users": users,
+        "products": products
+    }
+    return {"purchases": purchases_summary}
+
