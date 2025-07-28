@@ -81,3 +81,14 @@ async def custom_404_handler(request: Request, exc: StarletteHTTPException):
 @app.get("/hello/{name}",response_class=HTMLResponse)
 def get_page(request: Request, name:str):
     return templates.TemplateResponse("hello.html",{"request":request,"name":name})
+
+#2단계
+@app.get("/users", response_class=JSONResponse)
+def get_users():
+    users = load_mock_data("users.json")
+    return {"users": users}
+
+@app.get("/products", response_class=JSONResponse)
+def get_products():
+    products = load_mock_data("products.json")
+    return {"products": products}
