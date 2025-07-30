@@ -1,6 +1,6 @@
 # 이 아래의 코드는 파이썬에서 fastapi를 사용하기 위해 필요한 모듈들을 가져오는 코드입니다.
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, Form
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.templating import Jinja2Templates
 import json
@@ -11,6 +11,7 @@ from fastapi.exception_handlers import RequestValidationError
 from fastapi.exceptions import RequestValidationError as FastAPIRequestValidationError
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from fastapi import status
+from fastapi.responses import RedirectResponse
 
 # 이 아래에는 과제 수행에 필요한 공통 코드 및 도구들이 제공됩니다.
 
@@ -104,3 +105,60 @@ def get_purchases():
     }
     return {"purchases": purchases_summary}
 
+#4단계
+@app.get("/user_create", response_class=HTMLResponse)
+def user_create_page(request: Request):
+    return templates.TemplateResponse("user_create.html", {"request": request})
+
+@app.get("/product_create", response_class=HTMLResponse)
+def product_create_page(request: Request):
+    return templates.TemplateResponse("product_create.html", {"request": request})
+
+@app.get("/purchase_create", response_class=HTMLResponse)
+def purchase_create_page(request: Request):
+    return templates.TemplateResponse("purchase_create.html", {"request": request})
+
+@app.post("/users")
+def create_user(name: str = Form(...),email: str = Form(...)):
+    users = load_mock_data("users.json")
+
+    if users:
+        max_id = max(user["id"] for user in users)
+        new_id = max_id + 1
+    else:
+        new_id = 1
+
+    user_data = {"id": new_id, "name": name, "email": email}
+    users.append(user_data)
+    save_mock_data("users.json", users)
+    return RedirectResponse(url="/user_create", status_code=status.HTTP_303_SEE_OTHER)
+
+@app.post("/products")
+def create_product(name: str = Form(...),price: int = Form(...)):
+    products = load_mock_data("products.json")
+
+    if products:
+        max_id = max(product["id"] for product in products)
+        new_id = max_id + 1
+    else:
+        new_id = 1
+
+    product_data = {"id": new_id, "name": name, "price": price}
+    products.append(product_data)
+    save_mock_data("products.json", products)
+    return RedirectResponse(url="/product_create", status_code=status.HTTP_303_SEE_OTHER)
+
+@app.post("/purchases")
+def create_purchase(user_id: int = Form(...), product_id: int = Form(...), date: str = Form(...)):
+    purchases = load_mock_data("purchases.json")
+
+    if purchases:
+        max_id = max(purchase["id"] for purchase in purchases)
+        new_id = max_id + 1
+    else:
+        new_id = 1
+
+    purchases_data = {"id": new_id, "user_id": user_id, "product_id": product_id,"date":date}
+    purchases.append(purchases_data)
+    save_mock_data("purchases.json", purchases)
+    return RedirectResponse(url="/purchase_create", status_code=status.HTTP_303_SEE_OTHER)
