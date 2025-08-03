@@ -270,3 +270,18 @@ def update_or_delete_purchase    (
         return RedirectResponse(url="/", status_code=303)
 
     return JSONResponse(status_code=400, content={"error": "try again"})
+
+#6단계
+@app.get("/login",response_class=HTMLResponse)
+def get_login_page(request: Request):
+    return templates.TemplateResponse("login.html",{"request":request})
+
+@app.post("/login")
+def login(
+    request:Request,
+    username:str = Form(...),
+    password:str = Form(...)
+    ):
+    if username == "admin" and password == "1234":
+        return RedirectResponse("/", status_code=303)
+    return templates.TemplateResponse("login.html", {"request": request, "error": "아이디 또는 비밀번호가 잘못되었습니다."})
