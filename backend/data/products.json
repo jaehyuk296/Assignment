@@ -2,7 +2,7 @@
     {
         "id": 101,
         "name": "Keyboard",
-        "price": 30000
+        "price": 30005
     },
     {
         "id": 102,
@@ -13,10 +13,5 @@
         "id": 103,
         "name": "Monitor",
         "price": 200000
-    },
-    {
-        "id": 104,
-        "name": "water",
-        "price": -2
     }
 ]

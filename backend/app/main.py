@@ -42,23 +42,29 @@ def create_mock_data_item(filename, item_id, item_data):
 
 def get_mock_data_item(filename, item_id):
     data = load_mock_data(filename)
-    return data.get(item_id, None)  # ID가 없으면 None 반환
+    for item in data:
+        if item["id"] == item_id:
+            return item
+    return None
 
 def delete_mock_data_item(filename, item_id):
     data = load_mock_data(filename)
-    if item_id in data:
-        del data[item_id]
-        save_mock_data(filename, data)
-        return True
+    for idx, item in enumerate(data):
+        if item["id"] == item_id:
+            del data[idx]
+            save_mock_data(filename, data)
+            return True
     return False
+
 
 def update_mock_data_item(filename, item_id, new_data):
     data = load_mock_data(filename)
-    if item_id in data:
-        data[item_id] = new_data
-        save_mock_data(filename, data)
-        return True
-    return False  
+    for idx, item in enumerate(data):
+        if item["id"] == item_id:
+            data[idx] = new_data
+            save_mock_data(filename, data)
+            return True
+    return False
 
 @app.get("/", response_class=HTMLResponse)
 def read_root(request: Request):
@@ -162,3 +168,105 @@ def create_purchase(user_id: int = Form(...), product_id: int = Form(...), date:
     purchases.append(purchases_data)
     save_mock_data("purchases.json", purchases)
     return RedirectResponse(url="/purchase_create", status_code=status.HTTP_303_SEE_OTHER)
+
+#5단계
+@app.get("/user_edit/{id}", response_class=HTMLResponse)
+def user_edit_page(request: Request, id: int):
+    user = get_mock_data_item("users.json", id)
+    if user is None:
+        return JSONResponse(status_code=404, content={"error": "User not found"})
+    return templates.TemplateResponse("user_edit.html", {"request": request, "user": user, "id": id})
+
+@app.post("/users/{id}")
+def update_or_delete_user(
+    request: Request,
+    id: int,
+    name: str = Form(None),
+    email: str = Form(None),
+):
+    method = request.query_params.get("_method")
+
+    if method == "put":
+        user = get_mock_data_item("users.json", id)
+        if user is None:
+            return JSONResponse(status_code=404, content={"error": "User not found"})
+        user["name"] = name
+        user["email"] = email
+        update_mock_data_item("users.json", id, user)
+        return RedirectResponse(url=f"/user_edit/{id}", status_code=303)
+
+    elif method == "delete":
+        success = delete_mock_data_item("users.json", id)
+        if not success:
+            return JSONResponse(status_code=404, content={"error": "User not found"})
+        return RedirectResponse(url="/", status_code=303)
+
+    return JSONResponse(status_code=400, content={"error": "try again"})
+
+@app.get("/product_edit/{id}", response_class=HTMLResponse)
+def product_edit_page(request: Request, id: int):
+    product = get_mock_data_item("products.json", id)
+    if product is None:
+        return JSONResponse(status_code=404, content={"error": "product not found"})
+    return templates.TemplateResponse("product_edit.html", {"request": request, "product": product, "id": id})
+
+@app.post("/products/{id}")
+def update_or_delete_product    (
+    request: Request,
+    id: int,
+    name: str = Form(None),
+    price: int = Form(None),
+):
+    method = request.query_params.get("_method")
+
+    if method == "put":
+        product = get_mock_data_item("products.json", id)
+        if product is None:
+            return JSONResponse(status_code=404, content={"error": "product not found"})
+        product["name"] = name
+        product["price"] = price
+        update_mock_data_item("products.json", id, product)
+        return RedirectResponse(url=f"/product_edit/{id}", status_code=303)
+
+    elif method == "delete":
+        success = delete_mock_data_item("products.json", id)
+        if not success:
+            return JSONResponse(status_code=404, content={"error": "product not found"})
+        return RedirectResponse(url="/", status_code=303)
+
+    return JSONResponse(status_code=400, content={"error": "try again"})
+
+@app.get("/purchase_edit/{id}", response_class=HTMLResponse)
+def purchase_edit_page(request: Request, id: int):
+    purchase= get_mock_data_item("purchases.json", id)
+    if purchase is None:
+        return JSONResponse(status_code=404, content={"error": "purchase not found"})
+    return templates.TemplateResponse("purchase_edit.html", {"request": request, "purchase": purchase, "id": id})
+
+@app.post("/purchases/{id}")
+def update_or_delete_purchase    (
+    request: Request,
+    id: int,
+    user_id: int = Form(None),
+    product_id: int = Form(None),
+    date:str = Form(None),
+):
+    method = request.query_params.get("_method")
+
+    if method == "put":
+        purchase = get_mock_data_item("purchases.json", id)
+        if purchase is None:
+            return JSONResponse(status_code=404, content={"error": "purchase not found"})
+        purchase["user_id"] = user_id
+        purchase["product_id"] = product_id
+        purchase["date"] = date
+        update_mock_data_item("purchases.json", id, purchase)
+        return RedirectResponse(url=f"/purchase_edit/{id}", status_code=303)
+
+    elif method == "delete":
+        success = delete_mock_data_item("purchases.json", id)
+        if not success:
+            return JSONResponse(status_code=404, content={"error": "purchase not found"})
+        return RedirectResponse(url="/", status_code=303)
+
+    return JSONResponse(status_code=400, content={"error": "try again"})
